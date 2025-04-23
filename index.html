@@ -1,113 +1,2011 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snakes and Ladders</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Snake and Ladder Game</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    position: fixed;
+}
+
+.player-piece {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid white;
+    z-index: 10;
+    transition: all 0.5s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 3D effect for pieces */
+.player-piece::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    top: 3px;
+    left: 3px;
+}
+
+/* Different colors for players */
+.player-piece[data-player="1"] { background: #FF5252; } /* Red */
+.player-piece[data-player="2"] { background: #4CAF50; } /* Green */
+.player-piece[data-player="3"] { background: #2196F3; } /* Blue */
+.player-piece[data-player="4"] { background: #FFC107; } /* Yellow */
+.player-piece[data-player="5"] { background: #9C27B0; } /* Purple */
+.player-piece[data-player="6"] { background: #FF9800; } /* Orange */
+
+/* Enhanced piece styling */
+.piece-decor {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0.3;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* Pulse animation for active player */
+.player-piece.active {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Glow effect for current player */
+.player-container.active .player-token {
+     box-shadow: 0 0 10px 3px rgba(255,255,255,0.7);
+}
+
+    body {
+        background: linear-gradient(to bottom, #ff5252, #b71c1c);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 500px;
+        height: 100vh;
+        max-height: 800px;
+    }
+
+    .menu-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+        background-color: #ffc107;
+        border: 2px solid #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 100;
+    }
+
+    .menu-btn span {
+        display: block;
+        width: 20px;
+        height: 3px;
+        background-color: #000;
+        position: relative;
+    }
+
+    .menu-btn span:before,
+    .menu-btn span:after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 3px;
+        background-color: #000;
+        left: 0;
+    }
+
+    .menu-btn span:before {
+        top: -6px;
+    }
+
+    .menu-btn span:after {
+        top: 6px;
+    }
+
+    .menu {
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        z-index: 100;
+        display: none;
+    }
+
+    .menu.active {
+        display: block;
+    }
+
+    .menu-item {
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .menu-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .title {
+        color: #ffc107;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-size: 24px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .players-top, .players-bottom {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        padding: 5px 0;
+    }
+
+    .player-container {
+        display: flex;
+        align-items: center;
+        transition: transform 0.3s;
+    }
+
+    .player-container.active {
+        transform: scale(1.1);
+    }
+
+    .player-token {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: 2px solid #ffc107;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .player-token-inner {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .player-token-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    .player-info {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        margin-left: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+    .dice-container {
+        width: 40px;
+        height: 40px;
+        margin-left: 5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dice {
+        width: 100%;
+        height: 100%;
+        background-color: #2196F3;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 5px;
+        cursor: pointer;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .dice-row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .dice-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: white;
+    }
+
+    .dice-dot.hidden {
+        background-color: transparent;
+    }
+
+    .board-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1/1;
+        border: 4px solid #ffc107;
+        background-color: #ffcdd2;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+   
+#soundToggleBtn.sound-off::before {
+    content: "🔇 ";
+}
+
+    .cell {
+        position: relative;
+        border: 1px solid #ffc107;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 12px;
+        z-index: 1;
+    }
+
+    .cell:nth-child(odd) {
+        background-color: #f8bbd0;
+    }
+
+    .cell:nth-child(even) {
+        background-color: #f48fb1;
+    }
+
+    .snake {
+        position: absolute;
+        z-index: 2;
+    }
+
+    .ladder {
+        position: absolute;
+        z-index: 2;
+    }
+
+    .player-piece {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid white;
+        z-index: 10;
+        transition: all 0.5s ease;
+    }
+
+    .player-piece.locked {
+        border: 2px dashed #ff0000;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .setup-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .setup-card {
+        background-color: #8B0000;
+        border-radius: 10px;
+        padding: 20px;
+        width: 90%;
+        max-width: 400px;
+        border: 4px solid #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .setup-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #FFD700;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .setup-description {
+        color: #FFD700;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .board-selection-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .board-preview {
+        width: 100%;
+        aspect-ratio: 1/1;
+        border: 3px solid #FFD700;
+        margin-bottom: 10px;
+        position: relative;
+        overflow: hidden;
+        background-color: #ffcdd2;
+    }
+
+    .board-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .board-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .nav-arrow {
+        width: 40px;
+        height: 40px;
+        background-color: #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 24px;
+        font-weight: bold;
+        color: #8B0000;
+        user-select: none;
+    }
+
+    .board-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #FFD700;
+    }
+
+    .select-btn {
+        width: 150px;
+        height: 50px;
+        background-color: #009688;
+        border: 3px solid #FFD700;
+        border-radius: 25px;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .player-setup {
+        margin-bottom: 20px;
+    }
+
+    .player-count-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #FFD700;
+    }
+
+    .player-count-slider {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .player-setup-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .player-color-preview {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+
+    .player-name-input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #FFD700;
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    .computer-toggle {
+        display: flex;
+        align-items: center;
+        margin-left: 10px;
+    }
+
+    .computer-toggle-label {
+        margin-left: 5px;
+        font-size: 12px;
+        color: #FFD700;
+    }
+
+    .setup-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #009688;
+        border: 2px solid #FFD700;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+
+    .setup-button:hover {
+        background-color: #00796b;
+    }
+
+    .winner-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .winner-card {
+        background-color: #8B0000;
+        border: 4px solid #FFD700;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .winner-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #FFD700;
+    }
+
+    .winner-message {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .winner-ranks {
+        width: 100%;
+        margin-bottom: 20px;
+   	 max-height: 200px; /* Add this to limit height and enable scrolling if many players */
+    overflow-y: auto;
+    }
+
+    .winner-rank-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 15px;
+        margin-bottom: 5px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+
+    .rank-position {
+        font-weight: bold;
+        color: #FFD700;
+        width: 30px;
+    }
+
+    .rank-name {
+        flex-grow: 1;
+        text-align: left;
+        padding-left: 15px;
+        color: white;
+    }
+
+    .rank-score {
+        font-weight: bold;
+        color: #FFD700;
+        width: 50px;
+    }
+
+    .play-again-button {
+        padding: 10px 20px;
+        background-color: #009688;
+        border: 2px solid #FFD700;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+
+    @keyframes roll {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .rolling {
+        animation: roll 0.3s linear infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .bounce {
+        animation: bounce 0.5s ease infinite;
+    }
+
+    @keyframes moveAlongPath {
+        0% { offset-distance: 0%;
+	     opacity: 1; }
+        100% { offset-distance: 100%; 
+		opacity: 0.8; }
+    }
+
+    .moving-along-path {
+        offset-path: path('');
+        animation: moveAlongPath 1s ease-in-out forwards;
+	offset-rotate: auto;
+        transform-box: fill-box;
+    }
+
+.moving-along-path {
+    animation: 
+        moveAlongPath 1s ease-in-out forwards,
+        scalePulse 1s ease-in-out infinite;
+}
+
+@keyframes scalePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+    @media (max-height: 700px) {
+        .title {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .player-token, .player-info, .dice-container {
+            width: 35px;
+            height: 35px;
+        }
+        
+        .player-token-inner {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .player-token-color {
+            width: 18px;
+            height: 18px;
+        }
+    }
+</style>
 </head>
 <body>
-    <div class="game-container">
-
-        <!-- Start Screen -->
-        <div id="start-screen" class="active">
-            <h1>Snakes & Ladders</h1>
-            <div class="options">
-                <label for="player-count">Select Players:</label>
-                <select id="player-count">
-                    <option value="2">2 Players</option>
-                    <option value="3">3 Players</option>
-                    <option value="4">4 Players</option>
-                    <option value="5">5 Players</option>
-                    <option value="6">6 Players</option>
-                </select>
-            </div>
-             <div class="options">
-                <label for="game-level">Select Level:</label>
-                <select id="game-level">
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                </select>
-            </div>
-            <button id="start-button">Start Game</button>
-        </div>
-
-        <!-- Game Area -->
-        <div id="game-area">
-            <!-- Player Info - Top -->
-            <div class="player-info-container top">
-                <div id="player-info-2" class="player-info-box player-2" style="display: none;">
-                    <div class="player-icon"></div>
-                    <span class="player-name">Player 2</span>
-                     <div class="player-home"></div>
-                </div>
-                <div id="player-info-3" class="player-info-box player-3" style="display: none;">
-                    <div class="player-icon"></div>
-                    <span class="player-name">Player 3</span>
-                     <div class="player-home"></div>
-                </div>
-                 <div id="player-info-4" class="player-info-box player-4" style="display: none;">
-                    <div class="player-icon"></div>
-                    <span class="player-name">Player 4</span>
-                     <div class="player-home"></div>
-                </div>
-            </div>
-
-            <!-- Game Board -->
-            <div class="board-container">
-                <div id="board" class="board">
-                    <!-- Squares will be generated by JavaScript -->
-                    <!-- Snake/Ladder Images will be overlaid here or as backgrounds -->
-                    <img src="images/snakes_ladders_overlay.png" alt="Snakes and Ladders" class="board-overlay" id="board-overlay-img">
-                    <!-- Add individual snake/ladder images if preferred -->
-                </div>
-                 <div id="pieces-container">
-                     <!-- Player pieces will be added here by JavaScript -->
-                 </div>
-            </div>
-
-
-            <!-- Player Info - Bottom -->
-             <div class="player-info-container bottom">
-                 <div id="player-info-1" class="player-info-box player-1" style="display: none;">
-                    <div class="player-icon"></div>
-                    <span class="player-name">Player 1</span>
-                    <div class="player-home"></div>
-                 </div>
-                 <div id="player-info-6" class="player-info-box player-6" style="display: none;">
-                     <div class="player-icon"></div>
-                     <span class="player-name">Player 6</span>
-                     <div class="player-home"></div>
-                 </div>
-                 <div id="player-info-5" class="player-info-box player-5" style="display: none;">
-                     <div class="player-icon"></div>
-                     <span class="player-name">Player 5</span>
-                     <div class="player-home"></div>
-                 </div>
-            </div>
-
-            <!-- Dice Area -->
-            <div id="dice-area">
-                <div id="dice" class="dice">
-                    <!-- Dice faces will be shown here -->
-                     <div class="face front"></div>
-                     <div class="face back"></div>
-                     <div class="face top"></div>
-                     <div class="face bottom"></div>
-                     <div class="face right"></div>
-                     <div class="face left"></div>
-                </div>
-                <p id="message-area">Player 1's turn. Click the dice!</p>
-            </div>
-
-            <!-- Menu Button (like image) -->
-            <button id="menu-button">☰</button>
-
-        </div>
-
+<div class="game-container">
+    <div class="menu-btn" id="menuBtn">
+        <span></span>
     </div>
+    <div class="menu" id="menu">
+        <div class="menu-item" id="newGameBtn">New Game</div>
+       <div class="menu-item" id="soundToggleBtn">
+    <span class="sound-icon"></span>
+    <span class="sound-toggle-text">Sound: ON</span>
+</div>
+    </div>
+    
+    <h1 class="title">Snake and Ladder</h1>
+    
+    <div class="players-top" id="playersTop"></div>
+    
+    <div class="board-container">
+        <div class="board" id="board"></div>
+    </div>
+    
+    <div class="players-bottom" id="playersBottom"></div>
+</div>
 
-    <script src="script.js"></script>
+<div class="setup-container" id="boardSetup">
+    <div class="setup-card">
+        <div class="setup-title">Choose Board</div>
+        
+        <div class="board-selection-container">
+            <div class="board-preview" id="boardPreview">
+                <!-- Board preview will be rendered here -->
+            </div>
+            
+            <div class="board-navigation">
+                <div class="nav-arrow" id="prevBoardBtn">◀</div>
+                <div class="board-name" id="boardName">Board 1</div>
+                <div class="nav-arrow" id="nextBoardBtn">▶</div>
+            </div>
+            
+            <div class="select-btn" id="confirmBoardBtn">Select</div>
+        </div>
+    </div>
+</div>
+
+<div class="setup-container" id="playerSetup" style="display: none;">
+    <div class="setup-card">
+        <div class="setup-title">Player Setup</div>
+        <div class="setup-description">Configure players for your game</div>
+        
+        <div class="player-setup">
+            <label class="player-count-label" for="playerCount">Number of Players: <span id="playerCountValue">2</span></label>
+            <input type="range" id="playerCount" class="player-count-slider" min="1" max="6" value="2">
+            
+            <div id="playerSetupItems"></div>
+            
+            <div id="singlePlayerMessage" style="display: none; margin-top: 10px; padding: 10px; background-color: rgba(255, 255, 255, 0.2); border-radius: 4px;">
+                <p style="font-size: 12px; color: #FFD700;">Playing alone? The computer will play against you!</p>
+            </div>
+        </div>
+        
+        <button class="setup-button" id="startGameBtn">Start Game</button>
+    </div>
+</div>
+
+<div class="winner-container" id="winnerContainer" style="display: none;">
+    <div class="winner-card">
+        <div class="winner-title">🎉 Game Over! 🎉</div>
+        <div class="winner-message" id="winnerMessage"></div>
+        <div class="winner-ranks" id="winnerRanks"></div>
+        <button class="play-again-button" id="playAgainBtn">Play Again</button>
+    </div>
+</div>
+
+<script>
+    // Board layout images URLs - Updated with the new image URLs
+    const BOARD_IMAGES = [
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0094.jpg-sq1rllIgqu74WYQkF1ZxhyvZPQTEoP.jpeg", // Classic
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0099.jpg-PJjrdruUbgbz6cYOTS7lpTsn6c8GhV.jpeg", // Lucky Ladders
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0098.jpg-m88uxYvJdkhewyf1tcH5kQyi8oeAZa.jpeg", // Snake Pit
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0093.jpg-l0ht5EoF8gvz1fdaLP40pIDm2D61rN.jpeg", // Quick Climb
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0097.jpg-6x3knqWrjgXvWLtDVsiwAmg83WmZjx.jpeg", // Serpent King
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0096.jpg-VeWs2mhaT49dyiMQtE3uIfxj1ww92a.jpeg", // Zig Zag
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250421-WA0095.jpg-IaFgXCgp7Csb2v3MjZAnF3jyTeKBSk.jpeg"  // Challenge
+    ];
+
+    // Board layouts with snake and ladder positions based on the provided images
+    const BOARD_LAYOUTS = [
+        {
+            name: "Classic",
+            imageUrl: BOARD_IMAGES[0],
+            description: "The traditional Snake and Ladder board with balanced snakes and ladders",
+            snakesAndLadders: {
+                // Ladders (start -> end)
+                23: 98,
+                4: 24,
+                6: 46,
+                8: 68,
+                9: 92,
+                45: 96,
+                67: 94,
+               
+                // Snakes (start -> end)
+                18: 3,
+                36: 5,
+                54: 7,
+                99: 2,
+                97: 37,
+                95: 55,
+                93: 73,
+            }
+        },
+        {
+            name: "Lucky Ladders",
+            imageUrl: BOARD_IMAGES[1],
+            description: "More ladders than snakes for a faster game",
+            snakesAndLadders: {
+                // Ladders
+                2: 23,
+                8: 14,
+                26: 35,
+                38: 44,
+                41: 60,
+                56: 77,
+		31: 86,
+                79: 81,
+		69: 90,
+		88: 92,
+                // Snakes
+                25: 4,
+                29: 10,
+                33: 27,
+                42: 22,
+                63: 59,
+                64: 37,
+                99: 78,
+		96: 47,
+		94: 73,
+		70: 49,
+            }
+        },
+        {
+            name: "Snake Pit",
+            imageUrl: BOARD_IMAGES[2],
+            description: "Watch out! This board is filled with dangerous snakes",
+            snakesAndLadders: {
+                // Ladders
+                9: 28,
+                25: 47,
+                30: 50,
+                39: 41,
+                2: 18,
+                45: 57,
+		51: 73,
+		65: 85,
+		79: 98,
+		89: 91,
+                
+                // Snakes
+                38: 17,
+                66: 46,
+                62: 60,
+                52: 33,
+                27: 5,
+                90: 70,
+		93: 67,
+		95: 75,
+		97: 58,
+		99: 81,
+            }
+        },
+        {
+            name: "Quick Climb",
+            imageUrl: BOARD_IMAGES[3],
+            description: "Reach the top quickly with many long ladders",
+            snakesAndLadders: {
+                // Ladders
+                6: 16,
+                10: 61,
+                18: 43,
+                21: 39,
+                30: 51,
+                48: 67,
+		57: 65,
+                69: 87,
+                90: 92,
+                76: 95,
+
+                
+                // Snakes
+                22: 2,
+                36: 7,
+                42: 40,
+                68: 49,
+                77: 28,
+		81: 62,
+                86: 74,
+                94: 71,
+                96: 84,
+                98: 63,
+
+            }
+        },
+        {
+            name: "Serpent King",
+            imageUrl: BOARD_IMAGES[4],
+            description: "Beware of the giant serpents that can send you back to the start",
+            snakesAndLadders: {
+                // Ladders
+                18: 24,
+                16: 26,
+                14: 28,
+                43: 57,
+                45: 55,
+                47: 53,
+		40: 81,
+                78: 84,
+                76: 86,
+                74: 88,
+                               
+                // Snakes
+                17: 5,
+                15: 7,
+                13: 9,
+                42: 38,
+                44: 36,
+                46: 34,
+		77: 65,
+                75: 67,
+                73: 69,
+                91: 50,
+		95: 87,
+                97: 85,
+                99: 83,
+
+            }
+        },
+        {
+            name: "Zig Zag",
+            imageUrl: BOARD_IMAGES[5],
+            description: "Snakes and ladders create a zigzag pattern across the board",
+            snakesAndLadders: {
+                // Ladders
+                4: 26,
+                8: 51,
+                28: 46,
+                39: 60,
+                44: 80,
+                52: 68,
+                69: 93,
+                71: 92,
+                64: 85,
+		84: 98,
+                
+                // Snakes
+                11: 9,
+                36: 14,
+                57: 19,
+                43: 22,
+                66: 47,
+                90: 49,
+                81: 63,
+                99: 78,
+		96: 65,
+		94: 48,
+            }
+        },
+        {
+            name: "Hidden Snake and Ladder",
+            imageUrl: BOARD_IMAGES[6],
+            description: "The most challenging board with tricky snakes near the finish",
+            snakesAndLadders: {
+                // Ladders
+                6: 97,
+                52: 87,
+                3: 21,
+                8: 55,
+                16: 26,
+                32: 48,
+                50: 70,
+                37: 76,
+                64: 83,
+                80: 99,
+                77: 95,
+                89: 91,
+
+                // Snakes
+                92: 49,
+                58: 40,
+                23: 5,
+                56: 25,
+                43: 38,
+                69: 12,
+                86: 54,
+                61: 59,
+		86: 54,
+                96: 84,
+                94: 73,
+                90: 72,
+               
+            }
+        }
+    ];
+
+    // Player colors
+    const PLAYER_COLORS = [
+        "#FF5252", // Red
+        "#4CAF50", // Green
+        "#2196F3", // Blue
+        "#FFC107", // Yellow
+        "#9C27B0", // Purple
+        "#FF9800"  // Orange
+    ];
+
+    // Game state
+    let players = [];
+    let currentPlayerIndex = 0;
+    let diceValue = 1;
+    let isRolling = false;
+    let winner = null;
+    let selectedBoardIndex = 0;
+    let snakesAndLadders = {};
+    let cellPositions = [];
+    let rolledOne = false; // Track if player rolled a one for roll again logic
+    let gameEnded = false; // Track if game has ended
+    let isDiceClickable = true;
+    // Audio elements
+let backgroundMusic, diceRollSound, snakeSound, ladderSound, winSound;
+let soundEnabled = true;
+
+    // DOM elements
+    const boardElement = document.getElementById('board');
+    const playersTopElement = document.getElementById('playersTop');
+    const playersBottomElement = document.getElementById('playersBottom');
+    const boardSetupElement = document.getElementById('boardSetup');
+    const playerSetupElement = document.getElementById('playerSetup');
+    const boardPreviewElement = document.getElementById('boardPreview');
+    const boardNameElement = document.getElementById('boardName');
+    const prevBoardBtnElement = document.getElementById('prevBoardBtn');
+    const nextBoardBtnElement = document.getElementById('nextBoardBtn');
+    const confirmBoardBtnElement = document.getElementById('confirmBoardBtn');
+    const playerCountElement = document.getElementById('playerCount');
+    const playerCountValueElement = document.getElementById('playerCountValue');
+    const playerSetupItemsElement = document.getElementById('playerSetupItems');
+    const singlePlayerMessageElement = document.getElementById('singlePlayerMessage');
+    const startGameBtnElement = document.getElementById('startGameBtn');
+    const winnerContainerElement = document.getElementById('winnerContainer');
+    const winnerMessageElement = document.getElementById('winnerMessage');
+    const winnerRanksElement = document.getElementById('winnerRanks');
+    const playAgainBtnElement = document.getElementById('playAgainBtn');
+    const menuBtnElement = document.getElementById('menuBtn');
+    const menuElement = document.getElementById('menu');
+    const newGameBtnElement = document.getElementById('newGameBtn');
+
+    // Initialize the game
+    function initGame() {
+
+const soundBtn = document.getElementById('soundToggleBtn');
+    if (soundBtn) {
+        soundBtn.addEventListener('click', toggleSound);
+        
+        // Set initial state
+        const soundIcon = soundBtn.querySelector('.sound-icon');
+        const soundText = soundBtn.querySelector('.sound-toggle-text');
+        soundIcon.textContent = soundEnabled ? "🔊" : "🔇";
+        soundText.textContent = `Sound: ${soundEnabled ? 'ON' : 'OFF'}`;
+    }
+
+        // Add this to initGame()
+function enableAudio() {
+    // Try to play audio on first interaction
+    const playPromise = backgroundMusic.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            // Auto-play was prevented
+            console.log("Auto-play prevented, will play on user interaction");
+        });
+    }
+}
+
+// Enable audio on any click/tap
+document.addEventListener('click', enableAudio, { once: true });
+        document.getElementById('soundToggleBtn').addEventListener('click', toggleSound);
+         // Initialize audio elements
+    backgroundMusic = document.getElementById('backgroundMusic');
+    diceRollSound = document.getElementById('diceRollSound');
+    snakeSound = document.getElementById('snakeSound');
+    ladderSound = document.getElementById('ladderSound');
+    winSound = document.getElementById('winSound');
+    
+    // Set volume levels
+    backgroundMusic.volume = 0.3;
+    diceRollSound.volume = 0.6;
+    snakeSound.volume = 0.5;
+    ladderSound.volume = 0.5;
+    winSound.volume = 0.7;
+        // Initialize board selection
+        initBoardSelection();
+        
+        // Add event listeners
+        prevBoardBtnElement.addEventListener('click', () => navigateBoard(-1));
+        nextBoardBtnElement.addEventListener('click', () => navigateBoard(1));
+        confirmBoardBtnElement.addEventListener('click', confirmBoardSelection);
+        playerCountElement.addEventListener('input', updatePlayerCount);
+        startGameBtnElement.addEventListener('click', startGame);
+        playAgainBtnElement.addEventListener('click', resetGame);
+        menuBtnElement.addEventListener('click', toggleMenu);
+        newGameBtnElement.addEventListener('click', resetGame);
+        
+        // Initialize player count
+        updatePlayerCount();
+    }
+
+    // Initialize board selection
+    function initBoardSelection() {
+        updateBoardPreview();
+    }
+
+    function playBackgroundMusic() {
+    if (soundEnabled) {
+        backgroundMusic.play().catch(e => console.log("Audio play prevented:", e));
+    }
+}
+
+function playDiceRollSound() {
+    if (soundEnabled) {
+        diceRollSound.currentTime = 0;
+        diceRollSound.play();
+    }
+}
+
+function playSnakeSound() {
+    if (soundEnabled) {
+        snakeSound.currentTime = 0;
+        snakeSound.play();
+    }
+}
+
+function playLadderSound() {
+    if (soundEnabled) {
+        ladderSound.currentTime = 0;
+        ladderSound.play();
+    }
+}
+
+function playWinSound() {
+    if (soundEnabled) {
+        winSound.currentTime = 0;
+        winSound.play();
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const soundBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = soundBtn.querySelector('.sound-icon');
+    const soundText = soundBtn.querySelector('.sound-toggle-text');
+    
+    // Update icon and text
+    soundIcon.textContent = soundEnabled ? "🔊" : "🔇";
+    soundText.textContent = `Sound: ${soundEnabled ? 'ON' : 'OFF'}`;
+    
+    // Play/pause background music
+    if (soundEnabled) {
+        playBackgroundMusic();
+    } else {
+        backgroundMusic.pause();
+    }
+}
+    // Update board preview
+    function updateBoardPreview() {
+        boardNameElement.textContent = `Board ${selectedBoardIndex + 1}: ${BOARD_LAYOUTS[selectedBoardIndex].name}`;
+        
+        // Create board preview
+        boardPreviewElement.innerHTML = '';
+        
+        // Use image for board preview
+        const img = document.createElement('img');
+        img.src = BOARD_LAYOUTS[selectedBoardIndex].imageUrl;
+        img.alt = BOARD_LAYOUTS[selectedBoardIndex].name;
+        boardPreviewElement.appendChild(img);
+    }
+
+    // Navigate between boards
+    function navigateBoard(direction) {
+        const newIndex = selectedBoardIndex + direction;
+        if (newIndex >= 0 && newIndex < BOARD_LAYOUTS.length) {
+            selectedBoardIndex = newIndex;
+            updateBoardPreview();
+        }
+    }
+
+    // Confirm board selection
+    function confirmBoardSelection() {
+        boardSetupElement.style.display = 'none';
+        playerSetupElement.style.display = 'flex';
+        snakesAndLadders = BOARD_LAYOUTS[selectedBoardIndex].snakesAndLadders;
+    }
+
+    // Update player count
+    function updatePlayerCount() {
+        const count = parseInt(playerCountElement.value);
+        playerCountValueElement.textContent = count;
+        
+        // Show/hide single player message
+        singlePlayerMessageElement.style.display = count === 1 ? 'block' : 'none';
+        
+        // Update player setup items
+        updatePlayerSetupItems(count);
+    }
+
+    // Update player setup items
+    function updatePlayerSetupItems(count) {
+        playerSetupItemsElement.innerHTML = '';
+        
+        for (let i = 0; i < count; i++) {
+            const playerSetupItem = document.createElement('div');
+            playerSetupItem.className = 'player-setup-item';
+            
+            // Only show computer toggle for players other than first player when count > 1
+            const showComputerToggle = count > 1;
+            
+            playerSetupItem.innerHTML = `
+                <div class="player-color-preview" style="background-color: ${PLAYER_COLORS[i]};"></div>
+                <input type="text" class="player-name-input" placeholder="Player ${i + 1} name" data-player-index="${i}">
+                ${showComputerToggle ? `
+                    <div class="computer-toggle">
+                        <input type="checkbox" id="computerToggle${i}" class="computer-toggle-input" data-player-index="${i}">
+                        <label for="computerToggle${i}" class="computer-toggle-label">AI</label>
+                    </div>
+                ` : ''}
+            `;
+            
+            playerSetupItemsElement.appendChild(playerSetupItem);
+        }
+    }
+
+    // Start the game
+    function startGame() {
+        playerSetupElement.style.display = 'none';
+        
+        // Create players
+        createPlayers();
+        
+        // Initialize the board
+        initBoard();
+        
+        // Render players
+        renderPlayers();
+
+        playBackgroundMusic();
+        
+        // Start first turn
+        startTurn();
+    }
+
+    // Create players
+    function createPlayers() {
+        players = [];
+        const count = parseInt(playerCountElement.value);
+        
+        for (let i = 0; i < count; i++) {
+            const nameInput = document.querySelector(`.player-name-input[data-player-index="${i}"]`);
+            const name = nameInput && nameInput.value ? nameInput.value : `Player ${i + 1}`;
+            
+            let isComputer = false;
+            if (count === 1 && i === 1) {
+                // If single player, second player is always computer
+                isComputer = true;
+            } else if (count > 1) {
+                const computerToggle = document.querySelector(`.computer-toggle-input[data-player-index="${i}"]`);
+                isComputer = computerToggle && computerToggle.checked;
+            }
+            
+            players.push({
+                id: i + 1,
+                name: name,
+                position: 1,
+                color: PLAYER_COLORS[i],
+                isComputer: isComputer,
+                locked: true // Start with locked pieces
+            });
+        }
+        
+        // If single player, add a computer player
+        if (count === 1) {
+            players.push({
+                id: 2,
+                name: "Computer",
+                position: 1,
+                color: PLAYER_COLORS[1],
+                isComputer: true,
+                locked: true
+            });
+        }
+        
+        // Randomize starting player to fix the winning issue
+        currentPlayerIndex = Math.floor(Math.random() * players.length);
+    }
+
+    // Initialize the board
+    function initBoard() {
+        boardElement.innerHTML = '';
+        cellPositions = [];
+        
+        // Create cells in serpentine pattern (like the reference image)
+        for (let row = 9; row >= 0; row--) {
+            const isEvenRow = row % 2 === 0;
+            
+            for (let col = 0; col < 10; col++) {
+                const actualCol = isEvenRow ? col : 9 - col;
+                const cellNumber = row * 10 + actualCol + 1;
+                
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = cellNumber;
+                boardElement.appendChild(cell);
+                
+                // Store cell position for player movement
+                const cellRect = {
+                    number: cellNumber,
+                    // Will be updated after rendering
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0
+                };
+                cellPositions.push(cellRect);
+            }
+        }
+        
+        // Update cell positions after rendering
+        setTimeout(updateCellPositions, 0);
+        
+        // Display the selected board image
+        displayBoardImage();
+    }
+
+    // Display the selected board image
+    function displayBoardImage() {
+        const boardImg = document.createElement('img');
+        boardImg.src = BOARD_LAYOUTS[selectedBoardIndex].imageUrl;
+        boardImg.alt = BOARD_LAYOUTS[selectedBoardIndex].name;
+        boardImg.style.position = 'absolute';
+        boardImg.style.top = '0';
+        boardImg.style.left = '0';
+        boardImg.style.width = '100%';
+        boardImg.style.height = '100%';
+        boardImg.style.zIndex = '1';
+        boardImg.style.pointerEvents = 'none';
+        boardElement.appendChild(boardImg);
+    }
+
+    // Update cell positions
+    function updateCellPositions() {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach((cell, index) => {
+            const rect = cell.getBoundingClientRect();
+            const boardRect = boardElement.getBoundingClientRect();
+            
+            cellPositions[index].left = rect.left - boardRect.left;
+            cellPositions[index].top = rect.top - boardRect.top;
+            cellPositions[index].width = rect.width;
+            cellPositions[index].height = rect.height;
+        });
+        
+        // Add player pieces to the board
+        addPlayerPieces();
+    }
+
+    // Add player pieces to the board
+    function addPlayerPieces() {
+    document.querySelectorAll('.player-piece').forEach(el => el.remove());
+    
+    players.forEach((player, index) => {
+        const piece = document.createElement('div');
+        piece.className = 'player-piece';
+        piece.id = `player-piece-${player.id}`;
+        piece.setAttribute('data-player', player.id);
+        piece.style.backgroundColor = player.color;
+        
+        // Add decorative element
+        const decor = document.createElement('div');
+        decor.className = 'piece-decor';
+        decor.style.backgroundColor = player.color;
+        piece.appendChild(decor);
+        
+        positionPlayerPiece(piece, player.position, index);
+        boardElement.appendChild(piece);
+    });
+}
+
+    // Position a player piece on the board with improved positioning for multiple players on same cell
+    function positionPlayerPiece(pieceElement, position, playerIndex) {
+        const cell = cellPositions.find(cell => cell.number === position);
+        if (!cell) return;
+        
+        // Calculate the center position of the cell
+        const centerX = cell.left + cell.width / 2;
+        const centerY = cell.top + cell.height / 2;
+        
+        // Find all players at this position to arrange them in a circle
+        const playersAtSamePosition = players.filter(p => p.position === position);
+        const totalPlayersAtPosition = playersAtSamePosition.length;
+        
+        // If only one player at this position, place it at center
+        if (totalPlayersAtPosition === 1) {
+            pieceElement.style.left = `${centerX - 7.5}px`; // 7.5 is half of piece width (15px)
+            pieceElement.style.top = `${centerY - 7.5}px`; // 7.5 is half of piece height (15px)
+            return;
+        }
+        
+        // Find the index of this player among players at the same position
+        const positionIndex = playersAtSamePosition.findIndex(p => p.id === players[playerIndex].id);
+        
+        // Calculate radius based on number of players (more players = slightly larger radius)
+        const radius = Math.min(cell.width, cell.height) * 0.25 * (1 + (totalPlayersAtPosition > 3 ? 0.1 : 0));
+        
+        // Calculate angle for this player in the circle
+        const angle = (positionIndex / totalPlayersAtPosition) * Math.PI * 2;
+        
+        // Calculate offset based on angle and radius
+        const offsetX = Math.cos(angle) * radius;
+        const offsetY = Math.sin(angle) * radius;
+        
+        // Position the piece with the offset from center
+        pieceElement.style.left = `${centerX + offsetX - 7.5}px`;
+        pieceElement.style.top = `${centerY + offsetY - 7.5}px`;
+    }
+
+    // Render players
+    function renderPlayers() {
+        playersTopElement.innerHTML = '';
+        playersBottomElement.innerHTML = '';
+        
+        players.forEach((player, index) => {
+            const playerContainer = document.createElement('div');
+            playerContainer.className = `player-container ${index === currentPlayerIndex ? 'active' : ''}`;
+            playerContainer.id = `player-container-${player.id}`;
+            
+            playerContainer.innerHTML = `
+                <div class="player-token" style="background-color: ${player.color};">
+                    <div class="player-token-inner">
+                        <div class="player-token-color" style="background-color: ${player.color};"></div>
+                    </div>
+                </div>
+                <div class="player-info">
+                    <span>${player.name.substring(0, 8)}</span>
+                </div>
+                ${index === currentPlayerIndex ? `
+                <div class="dice-container">
+                    ${createDiceHTML()}
+                </div>` : ''}
+            `;
+            
+            // Add to top or bottom based on index
+            if (index < 3) {
+                playersTopElement.appendChild(playerContainer);
+            } else {
+                playersBottomElement.appendChild(playerContainer);
+            }
+            
+            // Add dice click event if this is the current player
+            if (index === currentPlayerIndex) {
+                const dice = playerContainer.querySelector('.dice');
+                if (dice) {
+                    dice.addEventListener('click', rollDice);
+                }
+            }
+        });
+    }
+
+    // Create dice HTML
+    function createDiceHTML() {
+        // Create dice dots based on current value
+        let dotsHTML = '';
+        
+        switch (diceValue) {
+            case 1:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                `;
+                break;
+            case 2:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                `;
+                break;
+            case 3:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                `;
+                break;
+            case 4:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                `;
+                break;
+            case 5:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                `;
+                break;
+            case 6:
+                dotsHTML = `
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-row">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot hidden"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                `;
+                break;
+        }
+        
+        return `<div class="dice">${dotsHTML}</div>`;
+    }
+
+    // Start a player's turn
+    function startTurn() {
+        if (gameEnded) return;
+        
+        rolledOne = false; // Reset roll again flag at start of turn
+        
+        // Update player containers
+        document.querySelectorAll('.player-container').forEach((container, index) => {
+            container.className = `player-container ${index === currentPlayerIndex ? 'active' : ''}`;
+        });
+        
+        // Render players to update dice
+        renderPlayers();
+        
+        // If current player is computer, roll automatically after a delay
+        if (players[currentPlayerIndex].isComputer) {
+            setTimeout(computerTurn, 500);
+        }
+    }
+
+    // Computer player's turn with smarter AI
+    function computerTurn() {
+        if (isRolling || winner) return;
+        
+        // Computer will try to roll higher numbers when close to winning
+        const currentPlayer = players[currentPlayerIndex];
+        const distanceToWin = 100 - currentPlayer.position;
+        
+        // If we're close to winning, wait a bit longer to simulate "thinking"
+        const delay = distanceToWin <= 6 ? 1500 : 1000;
+        
+        setTimeout(() => {
+            rollDice();
+        }, delay);
+    }
+
+    // Roll the dice
+    function rollDice() {
+        if (isRolling || winner || !isDiceClickable) return;
+        playDiceRollSound();
+        
+        isDiceClickable = false;
+	isRolling = true;
+        
+        // Get dice element
+        const dice = document.querySelector('.dice');
+        if (dice) {
+            dice.classList.add('rolling');
+        }
+        
+        // Simulate dice rolling animation
+        let rollCount = 0;
+        const maxRolls = 10;
+        const rollInterval = setInterval(() => {
+            diceValue = Math.floor(Math.random() * 6) + 1;
+            
+            // Update dice display
+            if (dice) {
+                dice.innerHTML = createDiceHTML();
+            }
+            
+            rollCount++;
+            if (rollCount >= maxRolls) {
+                clearInterval(rollInterval);
+                
+                if (dice) {
+                    dice.classList.remove('rolling');
+                }
+                
+                isRolling = false;
+                
+                // Check if player is locked and needs to roll a 1
+                const currentPlayer = players[currentPlayerIndex];
+                if (currentPlayer.locked) {
+                    if (diceValue === 1) {
+                        // Unlock the player
+                        currentPlayer.locked = false;
+                        
+                        // Update the player piece to remove locked class
+                        const piece = document.getElementById(`player-piece-${currentPlayer.id}`);
+                        if (piece) {
+                            piece.classList.remove('locked');
+                        }
+                        
+                        // Move player after dice roll completes
+                        movePlayer(diceValue);
+                    } else {
+                       // Player stays locked, move to next player
+                    setTimeout(() => {
+                        isDiceClickable = true; // Re-enable dice for next player
+                        nextPlayer();
+                    }, 500);
+                }
+                } else {
+                    // Player is already unlocked, move normally
+                    movePlayer(diceValue);
+                }
+            }
+        }, 100);
+    }
+
+    // Move a player with exact win condition
+    function movePlayer(steps) {
+        if (winner){
+         isDiceClickable = true;
+	return;
+}        
+        const currentPlayer = players[currentPlayerIndex];
+        const newPosition = currentPlayer.position + steps;
+        
+        // Check if player can win with exact roll
+        if (currentPlayer.position + steps > 100) {
+            // Player cannot move, stays in place
+            setTimeout(() => {
+                const title = document.querySelector('.title');
+                const originalText = title.textContent;
+                title.textContent = `${currentPlayer.name} needs ${100 - currentPlayer.position} or less to win!`;
+                
+                // Reset title after 2 seconds
+                setTimeout(() => {
+                    title.textContent = originalText;
+		    isDiceClickable = true;
+                    nextPlayer();
+                }, 500);
+            }, 500);
+            return;
+        }
+        
+        // Check if player won
+        if (newPosition === 100) {
+            winner = currentPlayer;
+            gameEnded = true;
+        }
+        
+        // Animate movement
+        animatePlayerMovement(currentPlayer, newPosition);
+    }
+
+    // Animate player movement
+    function animatePlayerMovement(player, targetPosition) {
+        const piece = document.getElementById(`player-piece-${player.id}`);
+        if (!piece) return;
+        
+        // Get current position
+        const currentPosition = player.position;
+        
+        // If same position, skip animation
+        if (currentPosition === targetPosition) {
+            checkSnakesAndLadders(player, targetPosition);
+            return;
+        }
+        
+        // Animate movement one step at a time
+        let currentStep = currentPosition;
+        const moveInterval = setInterval(() => {
+            // Move one step
+            currentStep = currentStep < targetPosition ? currentStep + 1 : currentStep - 1;
+            
+            // Update player position
+            player.position = currentStep;
+            
+            // Reposition all player pieces to ensure proper arrangement
+            updateAllPlayerPositions();
+            
+            // Add bounce effect
+            piece.classList.add('bounce');
+            setTimeout(() => {
+                piece.classList.remove('bounce');
+            }, 500);
+            
+            // Check if reached target
+            if (currentStep === targetPosition) {
+                clearInterval(moveInterval);
+                
+                // Check for snakes and ladders
+                setTimeout(() => {
+                    checkSnakesAndLadders(player, targetPosition);
+                }, 500);
+            }
+        }, 300);
+    }
+
+    // Update positions of all player pieces
+    function updateAllPlayerPositions() {
+        players.forEach((player, index) => {
+            const piece = document.getElementById(`player-piece-${player.id}`);
+            if (piece) {
+                positionPlayerPiece(piece, player.position, index);
+            }
+        });
+    }
+
+    // Check for snakes and ladders
+    function checkSnakesAndLadders(player, position) {
+        if (position in snakesAndLadders) {
+            // Found a snake or ladder
+            const newPosition = snakesAndLadders[position];
+            if (newPosition > position) {
+            playLadderSound();
+        } else {
+            playSnakeSound();
+        }
+            
+            // Get the piece element
+            const piece = document.getElementById(`player-piece-${player.id}`);
+            if (!piece) {
+                // If piece not found, just update position and move to next player
+                player.position = newPosition;
+                updateAllPlayerPositions();
+                
+                // Check if player rolled a 1 for another turn
+                checkRollAgain();
+                return;
+            }
+            
+            // Get start and end cell positions
+            const startCell = cellPositions.find(cell => cell.number === position);
+            const endCell = cellPositions.find(cell => cell.number === newPosition);
+            
+            if (!startCell || !endCell) {
+                // If cells not found, just update position and move to next player
+                player.position = newPosition;
+                updateAllPlayerPositions();
+                
+                // Check if player rolled a 1 for another turn
+                checkRollAgain();
+                return;
+            }
+            
+            // Calculate start and end points for animation
+            const startX = startCell.left + startCell.width / 2;
+            const startY = startCell.top + startCell.height / 2;
+            const endX = endCell.left + endCell.width / 2;
+            const endY = endCell.top + endCell.height / 2;
+            
+            // Determine if it's a snake or ladder
+            const isLadder = newPosition > position;
+            
+            // Create different paths based on direction
+        let pathData;
+        if (isLadder) {
+            // Straight path for ladders
+            pathData = `M${startX},${startY} L${endX},${endY}`;
+        } else {
+            // Curved path for snakes - create multiple quadratic curves for a snake-like motion
+            const controlX1 = startX + (endX - startX) * 0.3;
+            const controlY1 = startY + (endY - startY) * 0.2 - 30;
+            const controlX2 = startX + (endX - startX) * 0.7;
+            const controlY2 = startY + (endY - startY) * 0.8 - 20;
+            
+            pathData = `M${startX},${startY} 
+                        Q${controlX1},${controlY1} ${(startX + endX)/2},${(startY + endY)/2}
+                        Q${controlX2},${controlY2} ${endX},${endY}`;
+        }
+            
+            // Set up the animation
+            piece.style.offsetPath = `path('${pathData}')`;
+            piece.classList.add('moving-along-path');
+
+	    // Add rotation effect for more natural movement
+        piece.style.offsetRotate = 'auto';
+            
+            // Update player position after animation completes
+            setTimeout(() => {
+                piece.classList.remove('moving-along-path');
+                piece.style.offsetPath = '';
+	        piece.style.offsetRotate = '';
+                
+                // Update player position
+                player.position = newPosition;
+                
+                // Update all player positions to ensure proper arrangement
+                updateAllPlayerPositions();
+
+		if (!rolledOne) {
+                isDiceClickable = true;
+            }
+                
+                // Check if player rolled a 1 for another turn
+                checkRollAgain();
+            }, 400);
+        } else {
+		
+		if (!rolledOne) {
+                isDiceClickable = true;
+            }
+            // No snake or ladder, check if player rolled a 1 for another turn
+            checkRollAgain();
+        }
+    }
+    
+    // Check if player rolled a 1 for another turn
+    function checkRollAgain() {
+        if (winner) {
+            showWinner();
+            return;
+        }
+        
+        // If player rolled a 1, they get another turn
+        if (diceValue === 1 && !rolledOne) {
+            rolledOne = true; // Set flag to prevent infinite turns
+            
+            // Show message that player gets another turn
+            const title = document.querySelector('.title');
+            const originalText = title.textContent;
+            title.textContent = `${players[currentPlayerIndex].name} rolled a 1! Roll again!`;
+            
+            // Reset title after 2 seconds
+            setTimeout(() => {
+                title.textContent = originalText;
+		 isDiceClickable = true;
+                // Start the same player's turn again
+                startTurn();
+            }, 700);
+        } else {
+		 isDiceClickable = true;
+            // Move to next player
+            setTimeout(nextPlayer, 500);
+        }
+    }
+
+    // Move to next player
+    function nextPlayer() {
+        if (winner) {
+            showWinner();
+            return;
+        }
+        
+        // Move to next player
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        
+        // Start next turn
+        startTurn();
+    }
+
+    // Show winner with ranked players
+    function showWinner() {
+        playWinSound();
+        // Sort players by position (descending) to determine ranks
+        const rankedPlayers = [...players].sort((a, b) => b.position - a.position);
+        
+        // Set winner message
+        winnerMessageElement.textContent = `🏆 ${winner.name} wins the game! 🏆`;
+        
+        // Create ranked list
+        winnerRanksElement.innerHTML = '';
+        
+        rankedPlayers.forEach((player, index) => {
+            const rankItem = document.createElement('div');
+            rankItem.className = 'winner-rank-item';
+            
+            // Determine rank emoji
+            let rankEmoji = '';
+            if (index === 0) rankEmoji = '🥇';
+            else if (index === 1) rankEmoji = '🥈';
+            else if (index === 2) rankEmoji = '🥉';
+	    else rankEmoji = `#${index + 1}`; 
+            
+            rankItem.innerHTML = `
+                <div class="rank-position">${index + 1}${rankEmoji}</div>
+                <div class="rank-name">${player.name}</div>
+                <div class="rank-score">${player.position}</div>
+            `;
+            
+            winnerRanksElement.appendChild(rankItem);
+        });
+        
+        winnerContainerElement.style.display = 'flex';
+    }
+
+    // Reset the game
+    function resetGame() {
+        // Reset game state
+        players = [];
+        currentPlayerIndex = 0;
+        diceValue = 1;
+        isRolling = false;
+        winner = null;
+        rolledOne = false;
+        gameEnded = false;
+        
+        // Hide winner container
+        winnerContainerElement.style.display = 'none';
+        
+        // Hide menu
+        menuElement.classList.remove('active');
+        
+        // Show board setup
+        boardSetupElement.style.display = 'flex';
+        playerSetupElement.style.display = 'none';
+        
+        // Reset board selection
+        selectedBoardIndex = 0;
+        updateBoardPreview();
+    }
+
+    // Toggle menu
+    function toggleMenu() {
+        menuElement.classList.toggle('active');
+    }
+
+    // Initialize the game when the page loads
+    window.addEventListener('load', initGame);
+</script>
+
+<!-- Sound elements -->
+<audio id="backgroundMusic" loop>
+    <source src="https://assets.mixkit.co/music/953/953.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="diceRollSound">
+    <source src="https://audio.jukehost.co.uk/9lJDGWCoD8cVn9FWA9zkIS0LGT90Lvp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="snakeSound">
+    <source src="https://od.lk/s/NDdfOTg0MDI4MTFf/soundscrate-snake-hiss-10.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="ladderSound">
+    <source src="https://od.lk/s/NDdfOTg0MDI4MjVf/ladder.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="winSound">
+    <source src="https://od.lk/s/NDdfOTg0MDI4Mjlf/success.mp3" type="audio/mpeg">
+  </audio>
+<body><script type='text/javascript' src='//pl26241835.profitableratecpm.com/a4/80/1d/a4801d6ae2abff58f83bfbd357108174.js'></script></body>
 </body>
 </html>
+
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'b9424821c79ca201632a66060fcdf95c',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 5,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/b9424821c79ca201632a66060fcdf95c/invoke.js"></script>
